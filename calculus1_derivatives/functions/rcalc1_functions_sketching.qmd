@@ -1,0 +1,125 @@
+---
+title: "COURSE: Master Calculus 1 — Derivatives and Applications (R)"
+subtitle: "SECTION: Functions | LECTURE: CodeChallenge: Infinite Functions to Sketch"
+author: "Translated from Mike X Cohen, sincxpress.com"
+format: html
+---
+
+```{r}
+#| message: false
+library(ggplot2)
+library(dplyr)
+```
+
+# Exercise 1: Random polynomial sketch
+
+```{r}
+set.seed(NULL)
+x <- seq(-3, 3, length.out = 101)
+
+# Random integer coefficients in [-5, 5]
+coefs <- sample(-5:5, 3, replace = TRUE)
+
+fx <- coefs[1] + coefs[2]*x + coefs[3]*x^2
+
+cat(sprintf("Sketch this!\ny = %d + %dx + %dx^2\n",
+            coefs[1], coefs[2], coefs[3]))
+```
+
+```{r}
+# Key points at x = -1, 0, 1
+key_x <- c(-1, 0, 1)
+key_y <- coefs[1] + coefs[2]*key_x + coefs[3]*key_x^2
+
+df_key <- data.frame(
+  x     = key_x,
+  y     = key_y,
+  label = paste("x =", key_x)
+)
+
+ggplot(data.frame(x = x, y = fx), aes(x, y)) +
+  geom_line(linewidth = 1.5) +
+  geom_hline(yintercept = 0, linewidth = 1, color = "black") +
+  geom_vline(xintercept = 0, linewidth = 1, color = "black") +
+  geom_point(data = df_key, aes(x, y, color = label), size = 3) +
+  labs(title = sprintf("y = %d + %dx + %dx\u00b2",
+                       coefs[1], coefs[2], coefs[3]),
+       color = NULL) +
+  theme(aspect.ratio = 1)
+```
+
+# Exercise 2: Damped oscillation using *e* and cos
+
+```{r}
+set.seed(NULL)
+theta <- seq(-3, 3, length.out = 101)
+
+# Random non-zero integer coefficient
+coef_val <- sample(setdiff(-3:3, 0), 1)
+
+sfx <- function(t) coef_val * exp(-t) * cos(2*pi*t)
+
+cat(sprintf("Sketch this function!\nf(\u03b8) = %d \u00d7 exp(-\u03b8) \u00d7 cos(2\u03c0\u03b8)\n",
+            coef_val))
+```
+
+```{r}
+df_damped <- data.frame(theta = theta, y = sfx(theta))
+pt_origin <- data.frame(theta = 0, y = sfx(0))
+
+ggplot(df_damped, aes(theta, y)) +
+  geom_line(linewidth = 1.5) +
+  geom_hline(yintercept = 0, linewidth = 1, color = "black") +
+  geom_vline(xintercept = 0, linewidth = 1, color = "black") +
+  geom_point(data = pt_origin, aes(theta, y), color = "red", size = 3) +
+  labs(x = expression(theta), y = "f(\u03b8)",
+       title = sprintf("f(\u03b8) = %d \u00d7 e^{-\u03b8} \u00d7 cos(2\u03c0\u03b8)",
+                       coef_val)) +
+  theme(aspect.ratio = 1)
+```
+
+# Exercise 3: Random piecewise function
+
+```{r}
+set.seed(NULL)
+
+# Available functions for x <= 0 and x > 0
+neg_funs   <- list(f1 = function(x) x,
+                   f2 = function(x) x^2,
+                   f3 = function(x) x^3)
+neg_labels <- c("x", "x\u00b2", "x\u00b3")
+
+pos_funs   <- list(f1 = log,
+                   f2 = sqrt)
+pos_labels <- c("log(x)", "sqrt(x)")
+
+# Random selection
+ni <- sample(seq_along(neg_funs), 1)
+pi <- sample(seq_along(pos_funs), 1)
+
+cat(sprintf("Sketch this!!\n%s for x \u2264 0\n%s(x) for x > 0\n",
+            neg_labels[ni], pos_labels[pi]))
+```
+
+```{r}
+x <- seq(-3, 3, length.out = 101)
+
+# Build piecewise: suppress warnings from log/sqrt of negative values
+neg_part <- suppressWarnings(neg_funs[[ni]](x))
+pos_part <- suppressWarnings(pos_funs[[pi]](x))
+
+fx_neg <- ifelse(x <= 0, neg_part, NA)
+fx_pos <- ifelse(x >  0, pos_part, NA)
+
+df_pw <- rbind(
+  data.frame(x = x, y = fx_neg, piece = neg_labels[ni]),
+  data.frame(x = x, y = fx_pos, piece = pos_labels[pi])
+)
+
+ggplot(df_pw, aes(x, y, color = piece)) +
+  geom_line(linewidth = 1.5, na.rm = TRUE) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey40", linewidth = 0.4) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey40", linewidth = 0.4) +
+  coord_cartesian(xlim = c(-3, 3), ylim = c(-5, 5)) +
+  labs(x = "x", y = "f(x)", color = "Piece")
+```

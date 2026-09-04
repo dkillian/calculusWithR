@@ -1,0 +1,128 @@
+---
+title: "COURSE: Master Calculus 1 — Derivatives and Applications (R)"
+subtitle: "SECTION: Functions | LECTURE: CodeChallenge: Power and Log Rules"
+author: "Translated from Mike X Cohen, sincxpress.com"
+format: html
+---
+
+The Python version used SymPy to manipulate symbolic variables and `IPython.display.Math`
+to render LaTeX. In R, we state each rule as a mathematical identity and then
+**verify it numerically** with random values — the same approach used in Exercise 4
+of the original notebook.
+
+```{r}
+#| message: false
+library(ggplot2)
+```
+
+# Exercise 1: Power rule for multiplication — $$x^a \cdot x^b = x^{a+b}$$
+
+```{r}
+n1 <- 3.4
+n2 <- 7.3
+
+x_val <- 2.5   # test with a specific x
+
+lhs <- x_val^n1 * x_val^n2
+rhs <- x_val^(n1 + n2)
+
+cat(sprintf("x^%.1f * x^%.1f = %.6f\n",  n1, n2, lhs))
+cat(sprintf("x^(%.1f+%.1f) = %.6f\n",    n1, n2, rhs))
+cat("Difference:", lhs - rhs, "\n")
+```
+
+```{r}
+# Verify over a range of random (x, a, b) triplets
+set.seed(NULL)
+x_vals <- runif(1000, 0.5, 5)
+a_vals <- runif(1000, -3, 3)
+b_vals <- runif(1000, -3, 3)
+
+diffs <- x_vals^a_vals * x_vals^b_vals - x_vals^(a_vals + b_vals)
+cat(sprintf("Max absolute difference across 1000 random triplets: %.2e\n", max(abs(diffs))))
+```
+
+# Exercise 2: Power rule for division — $$\frac{x^a}{x^b} = x^{a-b}$$
+
+```{r}
+n <- 4
+
+lhs <- x_val^n / x_val^n
+rhs <- x_val^(n - n)
+
+cat(sprintf("x^%d / x^%d = %.6f\n", n, n, lhs))
+cat(sprintf("x^(%d-%d)   = %.6f\n", n, n, rhs))
+```
+
+```{r}
+# x^0 = 1
+cat("x^0 =", x_val^0, "\n")
+```
+
+```{r}
+# Verify over random triplets
+diffs2 <- x_vals^a_vals / x_vals^b_vals - x_vals^(a_vals - b_vals)
+cat(sprintf("Max absolute difference across 1000 random triplets: %.2e\n", max(abs(diffs2))))
+```
+
+# Exercise 3: Powers of powers — $$(x^a)^b = x^{a \cdot b}$$
+
+```{r}
+n1 <- 3
+n2 <- 7
+
+lhs <- (x_val^n1)^n2
+rhs <- x_val^(n1 * n2)
+
+cat(sprintf("(x^%d)^%d    = %.6f\n",      n1, n2, lhs))
+cat(sprintf("x^(%d*%d)   = %.6f\n",       n1, n2, rhs))
+cat("Difference:", lhs - rhs, "\n")
+```
+
+```{r}
+# Demonstration with non-integer exponents (positive x to avoid complex numbers)
+y_val <- 2
+n1f   <- 4.1
+n2f   <- -0.3
+
+cat(sprintf("(%g^%.1f)^%.1f  = %.6f\n", y_val, n1f, n2f, (y_val^n1f)^n2f))
+cat(sprintf("%g^(%.1f*%.1f) = %.6f\n",  y_val, n1f, n2f, y_val^(n1f * n2f)))
+```
+
+# Exercise 4: Logarithm rules — numerical verification
+
+## Product rule: $$\ln(ab) = \ln(a) + \ln(b)$$
+
+```{r}
+a <- runif(100)
+b <- runif(100)
+
+ans <- log(a * b) - (log(a) + log(b))
+
+ggplot(data.frame(i = seq_along(ans), diff = ans), aes(i, diff)) +
+  geom_point(shape = 15, size = 1.5) +
+  labs(x = "Sample index", y = "Difference",
+       title = expression(ln(ab) - (ln(a) + ln(b))))
+```
+
+## Power rule: $$\ln(a^b) = b \cdot \ln(a)$$
+
+```{r}
+ans <- log(a^b) - b * log(a)
+
+ggplot(data.frame(i = seq_along(ans), diff = ans), aes(i, diff)) +
+  geom_point(shape = 15, size = 1.5) +
+  labs(x = "Sample index", y = "Difference",
+       title = expression(ln(a^b) - b %*% ln(a)))
+```
+
+## Quotient rule: $$\ln\!\left(\frac{a}{b}\right) = \ln(a) - \ln(b)$$
+
+```{r}
+ans <- log(a / b) - (log(a) - log(b))
+
+ggplot(data.frame(i = seq_along(ans), diff = ans), aes(i, diff)) +
+  geom_point(shape = 15, size = 1.5) +
+  labs(x = "Sample index", y = "Difference",
+       title = expression(ln(a/b) - (ln(a) - ln(b))))
+```

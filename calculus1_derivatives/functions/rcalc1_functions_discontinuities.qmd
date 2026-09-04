@@ -1,0 +1,117 @@
+---
+title: "COURSE: Master Calculus 1 — Derivatives and Applications (R)"
+subtitle: "SECTION: Functions | LECTURE: CodeChallenge: Discontinuities"
+author: "Translated from Mike X Cohen, sincxpress.com"
+format: html
+---
+
+```{r}
+#| message: false
+library(ggplot2)
+library(dplyr)
+```
+
+# Exercise 1: Jump discontinuity in R
+
+```{r}
+resolution <- 0.1
+xx <- seq(-1, 2, by = resolution)
+
+# Three-piece function using boolean masking (same idea as NumPy)
+piece1 <- sin(xx * pi)      * (xx < 0)
+piece2 <- 1.5               * (abs(xx) < resolution / 2)
+piece3 <- -(xx - 2)^2      * (xx > 0)
+
+y <- piece1 + piece2 + piece3
+
+# Tag each point with which piece it belongs to for color/shape
+segment <- case_when(
+  xx < 0              ~ "sin(x\u03c0)",
+  abs(xx) < resolution / 2 ~ "1.5 (point)",
+  xx > 0              ~ "-(x-2)\u00b2"
+)
+
+ggplot(data.frame(x = xx, y = y, seg = segment), aes(x, y, color = seg, shape = seg)) +
+  geom_point(size = 2) +
+  labs(x = "x", y = "y = f(x)", title = "A function with a jump discontinuity",
+       color = NULL, shape = NULL)
+```
+
+# Exercise 2: Jump discontinuity — piecewise definition in R
+
+In Python, `sympy.Piecewise()` defines the function symbolically.
+In R, `ifelse()` (or `dplyr::case_when()`) is the natural equivalent.
+
+```{r}
+xx <- seq(-1, 2, by = 0.01)
+
+fx <- case_when(
+  xx < 0  ~ sin(xx * pi),
+  xx == 0 ~ 1.5,
+  xx > 0  ~ -(xx - 2)^2
+)
+
+ggplot(data.frame(x = xx, y = fx), aes(x, y)) +
+  geom_line(linewidth = 1) +
+  labs(x = "x", y = "y = f(x)", title = "Piecewise function (case_when)")
+```
+
+```{r}
+# f(0) = 1.5 — evaluate the piecewise function at x = 0
+x0 <- 0
+val <- dplyr::case_when(x0 < 0 ~ sin(x0*pi), x0 == 0 ~ 1.5, x0 > 0 ~ -(x0-2)^2)
+cat("f(0) =", val, "\n")
+```
+
+# Exercise 3: Removable discontinuity
+
+```{r}
+# f(x) = sin(x*pi) + x^2, but reassign f(0) to pi (point discontinuity)
+resolution <- 0.1
+xx <- seq(-1, 2, by = resolution)
+fx <- sin(xx * pi) + xx^2
+
+# Replace the value closest to x=0 with pi
+fx[which.min(abs(xx - 0))] <- pi
+
+ggplot(data.frame(x = xx, y = fx), aes(x, y)) +
+  geom_point(size = 2) +
+  labs(x = "x", y = "y = f(x)", title = "Removable discontinuity at x = 0")
+```
+
+# Exercise 4: Infinite discontinuity
+
+```{r}
+xx <- seq(-2, 2, length.out = 1001)
+fx <- 3 / (1 - xx^2)
+
+# Clip extreme values for plotting clarity
+fx_plot <- ifelse(abs(fx) > 20, NA, fx)
+
+ggplot(data.frame(x = xx, y = fx_plot), aes(x, y)) +
+  geom_line(linewidth = 1.5) +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "grey60") +
+  coord_cartesian(ylim = c(-20, 20)) +
+  labs(x = "x", y = "y = f(x)", title = "Infinite discontinuity: f(x) = 3 / (1 - x\u00b2)")
+```
+
+```{r}
+# Identify singularities (where denominator = 0)
+# f(x) = 3/(1 - x^2) → singularities where 1 - x^2 = 0 → x = ±1
+roots <- polyroot(c(1, 0, -1))   # roots of 1 - x^2 (coefficients of -x^2 + 1)
+cat("Singularities at x =", Re(roots), "\n")
+
+# Continuous domain within [-2, 2]: all x except ±1
+cat("Continuous on (-2, -1) ∪ (-1, 1) ∪ (1, 2)\n")
+```
+
+# Exercise 5: Oscillating discontinuity
+
+```{r}
+xx <- seq(-1, 2, length.out = 101)
+fx <- sin(1 / (xx - 1))
+
+ggplot(data.frame(x = xx, y = fx), aes(x, y)) +
+  geom_line(linewidth = 1) +
+  labs(x = "x", y = "y = f(x)", title = "Oscillating discontinuity: sin(1/(x-1))")
+```

@@ -1,0 +1,66 @@
+---
+title: "COURSE: Master Calculus 1 — Derivatives and Applications (R)"
+subtitle: "SECTION: Functions | LECTURE: CodeChallenge: Trigonometry"
+author: "Translated from Mike X Cohen, sincxpress.com"
+format: html
+---
+
+```{r}
+#| message: false
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+```
+
+# Exercise 1: Fun with trig
+
+```{r}
+xx <- seq(-pi, 2*pi, length.out = 234)
+
+data.frame(
+  x          = xx,
+  `sin(x)`   = sin(xx),
+  `sin(x)^2` = sin(xx)^2,
+  `sin(x^2)` = sin(xx^2),
+  check.names = FALSE
+) |>
+  pivot_longer(-x, names_to = "fun", values_to = "y") |>
+  ggplot(aes(x = x, y = y, color = fun)) +
+  geom_line(linewidth = 1) +
+  labs(x = "Angle (rad.)", y = "y = f(x)", color = NULL)
+```
+
+# Exercise 2: More fun with trig
+
+```{r}
+data.frame(
+  x              = xx,
+  `sin(cos(x))`  = sin(cos(xx)),
+  `cos(sin(x))`  = cos(sin(xx)),
+  `cos(x)`       = cos(xx),
+  check.names = FALSE
+) |>
+  pivot_longer(-x, names_to = "fun", values_to = "y") |>
+  ggplot(aes(x = x, y = y, color = fun)) +
+  geom_line(linewidth = 1) +
+  labs(x = "Angle (rad.)", y = "y = f(x)", color = NULL)
+```
+
+# Exercise 3: Resolution and tan
+
+```{r}
+# Plot tan(x) at three resolutions to see how point density affects appearance
+res_levels <- 10^(2:4)   # 100, 1000, 10000 points
+
+df_tan <- lapply(res_levels, function(n) {
+  x <- seq(0, 2*pi, length.out = n)
+  data.frame(x = x, y = tan(x), n_pts = paste(n, "pts"))
+}) |>
+  bind_rows()
+
+ggplot(df_tan, aes(x = x, y = y, color = n_pts)) +
+  geom_line(linewidth = 0.8) +
+  coord_cartesian(ylim = c(-50, 50)) +
+  labs(x = "Angle (rad.)", y = "y = f(x)",
+       title = "tan(x) at different resolutions", color = NULL)
+```

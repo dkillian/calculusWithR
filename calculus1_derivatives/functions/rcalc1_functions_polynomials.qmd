@@ -1,0 +1,675 @@
+---
+title: "Calculus in R: Derivatives and Applications"
+subtitle: "Exercise 2: Polynomials"
+author: "Dan Killian with Claude Sonnet 4.6"
+abstract: "An R translation of Mike X Cohen, Calculus in Python"
+date: today
+toc: true
+toc-depth: 3
+number-sections: false
+format:
+    html:
+        code-fold: false
+        code-tools: true
+        page-layout: full
+fig-width: 8
+fig-height: 5
+execute:
+    keep-md: true
+    warning: false
+    message: false
+editor: visual
+reference-location: margin
+---
+
+```{r global_options, include=F, warning=F, message=F, echo=F, error=F}
+library(here)
+library(knitr)
+source("../../Calculus with R prep.r")
+```
+
+The Python version used SymPy to represent polynomial and rational expressions symbolically before plotting. In R, polynomials are evaluated numerically using vectorised arithmetic — no symbolic engine is needed. The `polynom` package exists for formal polynomial objects, but for plotting and evaluation a loop or vectorised expression is sufficient.
+
+## Exercise 1: Random polynomials
+
+Generate a random degree-3 polynomial with standard-normal coefficients and plot it.
+
+```{r}
+
+set.seed(983)   # allow different results each run
+
+x <- seq(-5, 5, length.out = 20)
+
+# Random coefficients (standard normal)
+coefs <- rnorm(4)
+
+# Build polynomial: sum c_i * x^i
+y <- numeric(length(x))
+
+for (i in seq_along(coefs)) {
+  y <- y + coefs[i] * x^(i - 1)
+}
+
+out <- tibble(x=x, y=y) %>%
+    round(1)
+
+tbl_grob <- tableGrob(out,
+                      rows=NULL,
+                      theme = ttheme_minimal(base_size=12))
+
+# Build a title string showing the polynomial
+terms <- mapply(function(c, i) sprintf("%+.2f x^%d", c, i), coefs, 0:3)
+title_str <- paste("y =", paste(terms, collapse = " "))
+
+p <- ggplot(out, aes(x, y)) +
+  geom_hline(yintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+  geom_vline(xintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+  geom_line(linewidth = 1.5, color = "dodgerblue2") +
+  coord_cartesian(ylim = c(-15, 5)) +
+  labs(x = "x", y = "f(x)", title = title_str) +
+  theme(axis.title.y = element_text(angle = 0, vjust = .5))
+
+grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
+
+```
+
+## Exercise 2: Rational function
+
+$$f(x) = \frac{x^2 - 2x}{x^2 - 4}$$
+
+In Python, SymPy plotted this symbolically. In R, we evaluate numerically and set values near the singularities ($x = \pm 2$) to `NA` — this prevents `geom_line()` from drawing a spurious vertical line across the asymptotes.
+
+```{r}
+
+x <- seq(-3, 3, length.out = 60)
+
+num <- x^2 - 2*x
+den <- x^2 - 4
+
+y <- num / den
+
+# Mark values near singularities as NA to avoid vertical artifacts
+y <- ifelse(abs(den) < 1e-6, NA, num / den)
+
+out <- tibble(x=x,
+              num=num,
+              den=den,
+              y=y) %>%
+    round(1)
+
+tbl_grob <- tableGrob(out,
+                      rows=NULL,
+                      theme = ttheme_minimal(base_size=12))
+
+p <- ggplot(out, aes(x, y)) +
+    geom_hline(yintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_vline(xintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_line(linewidth = 1, color = "dodgerblue2") +
+    coord_cartesian(xlim = c(-3, 3), ylim = c(-20, 20)) +
+    labs(x = "x", y = "f(x)",
+       title = expression(f(x) == frac(x^2 - 2*x, x^2 - 4)),
+       caption="Some sort of singularity at x = -2") +
+    theme(axis.title.y = element_text(angle = 0, vjust = .5))
+
+grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
+
+```
+
+## Exercise 3: Estimate a sine wave using polynomials
+
+The Maclaurin series (Taylor series centered at 0) for sine:
+
+$$\sin(x) \approx \sum_{n=1}^{N} \frac{(-1)^{n+1}\, x^{2n-1}}{(2n-1)!}$$
+
+In Python, SymPy accumulated the series symbolically term by term. In R, we accumulate numerically — adding each term into a running total with a `for` loop. The comparison to the true `sin(x)` uses sampled points rather than a second line, making it easy to see where the approximation diverges near the edges of the domain.
+
+Let's start with $n=1$
+
+### n=1
+
+``` {r}
+
+order <- 10
+x <- seq(-2*pi, 2*pi, length.out = 40)
+
+sinx <- sin(x) %>% 
+    round(4)
+
+z <- numeric(length(x))
+
+n <- 1
+z <- z + (-1)^(n+1) * x^(2*n-1) / factorial(2*n-1)
+y <- z
+
+out <- tibble(x, sinx, y) %>%
+    round(1)
+
+tbl_grob <- tableGrob(out,
+                      rows=NULL,
+                      theme = ttheme_minimal(base_size=11))
+
+
+p <- ggplot(out, aes(x,y)) +
+    geom_hline(yintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_vline(xintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_point(color="dodgerblue2", size=2) +
+    geom_line(color = "dodgerblue2", linewidth = 1) +
+    geom_point(aes(y=sinx),
+               size=.2,
+               color="grey80") +
+    geom_line(aes(y=sinx),
+              size=.5,
+              color="grey60",
+              linetype="dashed") +
+    coord_cartesian(xlim = c(min(x), max(x)),
+                    ylim=c(-6.3, 6.3)) +
+                    #ylim = c(floor(min(y) / 10) * 10, ceiling(max(y) / 10) * 10)) +
+    scale_x_continuous(breaks=seq(round(min(x), -1), max(x), 1)) +
+    scale_y_continuous(breaks=seq(round(min(y), -1), max(y), 1)) +
+    labs(x = "x", y = "f(x)",
+       title = paste("Maclaurin approximation of sin(x) for n = 1"),
+       caption = "Line: Taylor series") + #     Points: sin(x)") +
+    theme(axis.title.y = element_text(angle = 0, vjust = .5))
+
+grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
+
+```
+### n=2
+
+```{r}
+n <- 2
+
+z <- z + (-1)^(n+1) * x^(2*n-1) / factorial(2*n-1)
+
+y <- z
+
+out <- tibble(x, y) %>%
+    round(1)
+
+tbl_grob <- tableGrob(out,
+                      rows=NULL,
+                      theme = ttheme_minimal(base_size=11))
+
+
+p <- ggplot(out, aes(x,y)) +
+    geom_hline(yintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_vline(xintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_point(color="dodgerblue2", size=2) +
+    geom_line(color = "dodgerblue2", linewidth = 1) +
+        geom_point(aes(y=sinx),
+               size=.2,
+               color="grey80") +
+    geom_line(aes(y=sinx),
+              size=.5,
+              color="grey60",
+              linetype="dashed") +
+    coord_cartesian(xlim = c(min(x), max(x)),
+                    ylim = c(floor(min(y) / 10) * 10, ceiling(max(y) / 10) * 10)) +
+    scale_x_continuous(breaks=seq(round(min(x), -1), max(x), 1)) +
+    scale_y_continuous(breaks=seq(round(min(y), -1), round(max(y), -1), 10)) +
+    labs(x = "x", y = "f(x)",
+       title = paste("Maclaurin approximation of sin(x) for n = 2"),
+       caption = "Line: Taylor series") + #     Points: sin(x)") +
+    theme(axis.title.y = element_text(angle = 0, vjust = .5))
+
+grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
+```
+### n=3
+
+```{r}
+n <- 3
+
+z <- z + (-1)^(n+1) * x^(2*n-1) / factorial(2*n-1)
+
+out <- data.frame(n, x, y=z) %>%
+    round(1)
+
+tbl_grob <- tableGrob(out,
+                      rows=NULL,
+                      theme = ttheme_minimal(base_size=11))
+
+
+p <- ggplot(out, aes(x,y)) +
+    geom_hline(yintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_vline(xintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_point(color="dodgerblue2", size=2) +
+    geom_line(color = "dodgerblue2", linewidth = 1) +
+    geom_point(aes(y=sinx),
+               size=.2,
+               color="grey80") +
+    geom_line(aes(y=sinx),
+              size=.5,
+              color="grey60",
+              linetype="dashed") +
+    coord_cartesian(xlim = c(min(x), max(x)),
+                    ylim = c(max(y), min(y))) +
+    scale_x_continuous(breaks=seq(round(min(x), -1), max(x), 2)) +
+    scale_y_continuous(breaks=seq(round(min(y), -1), max(y), 20)) +
+    labs(x = "x", y = "f(x)",
+       title = glue("Maclaurin approximation of sin(x) for n = {n}")) +
+#       caption = "Line: Taylor series") + #     Points: sin(x)") +
+    theme(axis.title.y = element_text(angle = 0, vjust = .5))
+
+grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
+
+```
+### n=4
+
+```{r}
+n <- 4
+
+z <- z + (-1)^(n+1) * x^(2*n-1) / factorial(2*n-1)
+
+y <- z
+
+out <- tibble(x, y) %>%
+    round(1)
+
+tbl_grob <- tableGrob(out,
+                      rows=NULL,
+                      theme = ttheme_minimal(base_size=11))
+
+
+p <- ggplot(out, aes(x,y)) +
+    geom_hline(yintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_vline(xintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_point(color="dodgerblue2", size=2) +
+    geom_line(color = "dodgerblue2", linewidth = 1) +  
+    geom_point(aes(y=sinx),
+               size=.2,
+               color="grey80") +
+    geom_line(aes(y=sinx),
+              size=.5,
+              color="grey60",
+              linetype="dashed") +
+    coord_cartesian(xlim = c(min(x), max(x)),
+                    ylim = c(floor(min(y) / 10) * 10, ceiling(max(y) / 10) * 10)) +
+    scale_x_continuous(breaks=seq(round(min(x), -1), max(x), 2)) +
+    scale_y_continuous(breaks=seq(round(min(y), -1), round(max(y), -1), 20)) +
+    labs(x = "x", y = "f(x)",
+       title = glue("Maclaurin approximation of sin(x) for n = {n}")) +
+#       caption = "Line: Taylor series") + #     Points: sin(x)") +
+    theme(axis.title.y = element_text(angle = 0, vjust = .5))
+ 
+grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
+
+```
+### n=5
+
+```{r}
+n <- 5
+
+z <- z + (-1)^(n+1) * x^(2*n-1) / factorial(2*n-1)
+
+y <- z
+
+out <- tibble(x, y) %>%
+    round(1)
+
+tbl_grob <- tableGrob(out,
+                      rows=NULL,
+                      theme = ttheme_minimal(base_size=11))
+
+
+p <- ggplot(out, aes(x,y)) +
+    geom_hline(yintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_vline(xintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_point(color="dodgerblue2", size=2) +
+    geom_line(color = "dodgerblue2", linewidth = 1) +  
+    geom_point(aes(y=sinx),
+               size=.2,
+               color="grey80") +
+    geom_line(aes(y=sinx),
+              size=.5,
+              color="grey60",
+              linetype="dashed") +
+    coord_cartesian(xlim = c(min(x), max(x)),
+                    ylim = c(max(y), min(y))) +
+    scale_x_continuous(breaks=seq(round(min(x), -1), max(x), 2)) +
+    scale_y_continuous(breaks=seq(round(min(y), -1), max(y), 20)) +
+    labs(x = "x", y = "f(x)",
+       title = glue("Maclaurin approximation of sin(x) for n = {n}")) +
+#       caption = "Line: Taylor series") + #     Points: sin(x)") +
+    theme(axis.title.y = element_text(angle = 0, vjust = .5))
+
+grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
+
+```
+At n = 5, the points along the x axis start to describe the sine wave. Zoom in to see. 
+
+```{r}
+
+p <- ggplot(out, aes(x,y)) +
+    geom_hline(yintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_vline(xintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_point(color="dodgerblue2", size=2) +
+    geom_line(color = "dodgerblue2", linewidth = 1) +  
+    geom_point(aes(y=sinx),
+               size=.2,
+               color="grey80") +
+    geom_line(aes(y=sinx),
+              size=.5,
+              color="grey60",
+              linetype="dashed") +
+    coord_cartesian(xlim = c(-4,4),
+                    ylim = c(-4,4)) +
+    #scale_x_continuous(breaks=seq(round(min(x), -1), max(x), 2)) +
+    #scale_y_continuous(breaks=seq(round(min(y), -1), max(y), 20)) +
+    labs(x = "x", y = "f(x)",
+       title = glue("Maclaurin approximation of sin(x) for n = {n}, zoomed")) +
+#       caption = "Line: Taylor series") + #     Points: sin(x)") +
+    theme(axis.title.y = element_text(angle = 0, vjust = .5))
+
+grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
+
+```
+
+### n=6
+
+```{r}
+
+n <- 6
+
+z <- z + (-1)^(n+1) * x^(2*n-1) / factorial(2*n-1)
+
+y <- z
+
+out <- tibble(x, y) %>%
+    round(1)
+
+tbl_grob <- tableGrob(out,
+                      rows=NULL,
+                      theme = ttheme_minimal(base_size=11))
+
+p <- ggplot(out, aes(x,y)) +
+    geom_hline(yintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_vline(xintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_point(color="dodgerblue2", size=2) +
+    geom_line(color = "dodgerblue2", linewidth = 1) + 
+    geom_point(aes(y=sinx),
+               size=.2,
+               color="grey80") +
+    geom_line(aes(y=sinx),
+              size=.5,
+              color="grey60",
+              linetype="dashed") +
+    coord_cartesian(xlim = c(min(x), max(x)),
+                    ylim = c(-3.2, 3.2)) +
+#                    min(y), max(y))) +
+    scale_x_continuous(breaks=seq(round(min(x), -1), max(x), 1)) +
+    scale_y_continuous(breaks=seq(round(min(y), 0), max(y), .5)) +
+    labs(x = "x", y = "f(x)",
+       title = glue("Maclaurin approximation of sin(x) for n = {n}")) +
+#       caption = "Line: Taylor series") + #     Points: sin(x)") +
+    theme(axis.title.y = element_text(angle = 0, vjust = .5))
+
+grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
+
+```
+### n=7
+
+```{r}
+
+n <- 7
+
+z <- z + (-1)^(n+1) * x^(2*n-1) / factorial(2*n-1)
+
+y <- z
+
+out <- tibble(x, y) %>%
+    round(1)
+
+tbl_grob <- tableGrob(out,
+                      rows=NULL,
+                      theme = ttheme_minimal(base_size=11))
+
+p <- ggplot(out, aes(x,y)) +
+    geom_hline(yintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_vline(xintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_point(color="dodgerblue2", size=2) +
+    geom_line(color = "dodgerblue2", linewidth = 1) +
+    geom_point(aes(y=sinx),
+               size=.2,
+               color="grey80") +
+    geom_line(aes(y=sinx),
+              size=.5,
+              color="grey60",
+              linetype="dashed") +
+    coord_cartesian(xlim = c(-6.3, 6.3)) +
+                    #ylim = c(-3.2, 3.2)) +
+#                    min(y), max(y))) +
+    scale_x_continuous(breaks=seq(-6, 6, 3)) +
+    scale_y_continuous(breaks=seq(round(min(y), 0), round(max(y), 0), .5)) +
+    labs(x = "x", y = "f(x)",
+       title = glue("Maclaurin approximation of sin(x) for n = {n}")) +
+#       caption = "Line: Taylor series") + #     Points: sin(x)") +
+    theme(axis.title.y = element_text(angle = 0, vjust = .5))
+
+grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
+
+```
+### n=8
+
+```{r}
+
+n <- 8
+
+z <- z + (-1)^(n+1) * x^(2*n-1) / factorial(2*n-1)
+
+y <- z
+
+out <- tibble(x, y) %>%
+    round(1)
+
+tbl_grob <- tableGrob(out,
+                      rows=NULL,
+                      theme = ttheme_minimal(base_size=11))
+
+p <- ggplot(out, aes(x,y)) +
+    geom_hline(yintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_vline(xintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_point(color="dodgerblue2", size=2) +
+    geom_line(color = "dodgerblue2", linewidth = 1) +  
+    geom_point(aes(y=sinx),
+               size=.2,
+               color="grey80") +
+    geom_line(aes(y=sinx),
+              size=.5,
+              color="grey60",
+              linetype="dashed") +
+    coord_cartesian(xlim = c(-6.3, 6.3)) +
+                    #ylim = c(-3.2, 3.2)) +
+#                    min(y), max(y))) +
+    scale_x_continuous(breaks=seq(-6, 6, 3)) +
+    scale_y_continuous(breaks=seq(round(min(y), 0), round(max(y), 0), .5)) +
+    labs(x = "x", y = "f(x)",
+       title = glue("Maclaurin approximation of sin(x) for n = {n}")) +
+#       caption = "Line: Taylor series") + #     Points: sin(x)") +
+    theme(axis.title.y = element_text(angle = 0, vjust = .5))
+
+grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
+
+```
+### n=9
+
+```{r}
+
+n <- 9
+
+z <- z + (-1)^(n+1) * x^(2*n-1) / factorial(2*n-1)
+
+y <- z
+
+out <- tibble(x, y) %>%
+    round(1)
+
+tbl_grob <- tableGrob(out,
+                      rows=NULL,
+                      theme = ttheme_minimal(base_size=11))
+
+p <- ggplot(out, aes(x,y)) +
+    geom_hline(yintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_vline(xintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_point(color="dodgerblue2", size=2) +
+    geom_line(color = "dodgerblue2", linewidth = 1) +  
+    geom_point(aes(y=sinx),
+               size=.2,
+               color="grey80") +
+    geom_line(aes(y=sinx),
+              size=.5,
+              color="grey60",
+              linetype="dashed") +
+    coord_cartesian(xlim = c(-6.3, 6.3)) +
+                    #ylim = c(-3.2, 3.2)) +
+#                    min(y), max(y))) +
+    scale_x_continuous(breaks=seq(-6, 6, 3)) +
+    scale_y_continuous(breaks=seq(round(min(y), 0), round(max(y), 0), .5)) +
+    labs(x = "x", y = "f(x)",
+       title = glue("Maclaurin approximation of sin(x) for n = {n}")) +
+#       caption = "Line: Taylor series") + #     Points: sin(x)") +
+    theme(axis.title.y = element_text(angle = 0, vjust = .5))
+
+grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
+
+```
+### n=10
+
+```{r}
+
+n <- 10
+
+z <- z + (-1)^(n+1) * x^(2*n-1) / factorial(2*n-1)
+
+y <- z
+
+out <- tibble(x, y) %>%
+    round(1)
+
+tbl_grob <- tableGrob(out,
+                      rows=NULL,
+                      theme = ttheme_minimal(base_size=11))
+
+p <- ggplot(out, aes(x,y)) +
+    geom_hline(yintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_vline(xintercept = 0, color = "darkgoldenrod2", linewidth = 1, alpha = .5) +
+    geom_point(color="dodgerblue2", size=2) +
+    geom_line(color = "dodgerblue2", linewidth = 1) + 
+    geom_point(aes(y=sinx),
+               size=.2,
+               color="grey80") +
+    geom_line(aes(y=sinx),
+              size=.5,
+              color="grey60",
+              linetype="dashed") +
+    coord_cartesian(xlim = c(-6.3, 6.3)) +
+                    #ylim = c(-3.2, 3.2)) +
+#                    min(y), max(y))) +
+    scale_x_continuous(breaks=seq(-6, 6, 3)) +
+    scale_y_continuous(breaks=seq(round(min(y), 0), round(max(y), 0), .5)) +
+    labs(x = "x", y = "f(x)",
+       title = glue("Maclaurin approximation of sin(x) for n = {n}")) +
+#       caption = "Line: Taylor series") + #     Points: sin(x)") +
+    theme(axis.title.y = element_text(angle = 0, vjust = .5))
+
+grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
+
+```
+### all terms together
+
+```{r}
+x <- seq(-2*pi, 2*pi, length.out = 40)
+sinx <- sin(x)
+z <- numeric(length(x))
+
+series <- matrix(NA, nrow = length(x), ncol = 9)
+
+for (n in 1:9) {
+  z <- z + (-1)^(n + 1) * x^(2*n - 1) / factorial(2*n - 1)
+  series[, n] <- z
+}
+
+series <- as_tibble(series, .name_repair = ~ paste0("n=", 1:9)) |>
+    mutate(x = x, sinx = sinx) |>
+    relocate(x, sinx) 
+
+seriesL <- series %>%
+    pivot_longer(`n=1`:`n=9`, 
+                 names_to="label",
+                 values_to="y") %>%
+    mutate(order=as.numeric(str_sub(label, 3,4))) %>%
+    relocate(order, .before=label)
+
+ggplot(seriesL, aes(x, y)) +
+  geom_line(color = "dodgerblue", 
+            size=1,
+            alpha=.5) +
+  geom_line(aes(y = sinx), 
+            linetype = "dashed", 
+            color = "grey10", 
+            size=.8, 
+            alpha=.4) +
+  coord_cartesian(xlim=c(-6,6),
+                  ylim = c(-6.2, 6.2)) +
+    scale_x_continuous(breaks=seq(-6,6,2)) +
+    scale_y_continuous(breaks=seq(-6,6,4)) +
+  facet_wrap(~ order,
+             ncol=3,
+             labeller = as_labeller(function(x) paste0("n=", x))) +
+  labs(x = "x", y = "f(x)") +
+  faceted +
+  theme(axis.title.y = element_text(angle = 0, vjust = .5),
+        axis.ticks=element_blank(),
+        axis.text=element_blank()) 
+
+```
+
+```{r}
+
+ggplot(seriesL, aes(x, y, color = label)) +
+    geom_line(linewidth = 1,
+              alpha=.6,
+              show.legend = F) +
+    scale_color_viridis_d() +
+    geom_line(aes(y=sinx),
+              linetype="dashed", 
+              color="grey10",
+              alpha=.4,
+              size=2) +
+    coord_cartesian(xlim=c(-6,6),
+                    ylim = c(-10,10)) +
+    scale_x_continuous(breaks=seq(-6,6,2)) +
+    labs(x = "x", y = "f(x)", color = NULL) +
+    annotate("text", x = 6.2, y =  5.3, label = "n=1", color = virid[1]) +
+    annotate("text", x = 3.9, y =  -9, label = "n=2", color = virid[2]) +
+    annotate("text", x = 4.3, y = 9, label = "n=3", color = virid[3], hjust = 0) +
+    annotate("text", x = 5.5, y =  -9, label = "n=4", color = virid[4], hjust = 0) +
+    annotate("text", x = 5.5, y = 9, label = "n=5", color = virid[5], hjust = 0) +
+    annotate("text", x = 6.1, y =  -3.5, label = "n=6", color = virid[6], hjust = 0) +
+    annotate("text", x = 5.8, y = 1, label="n=7-9", color="black", hjust=0)
+
+```
+
+```{r}
+#| fig-width: 7
+#| fig-height: 4.5
+
+sinx_df <- seriesL |> distinct(x, sinx)
+
+anim <- ggplot(seriesL, aes(x, y, color = label, group = label)) +
+  geom_line(data = sinx_df, aes(x, sinx),
+            inherit.aes = FALSE,
+            linetype = "dashed", color = "grey10", alpha = .6, linewidth = 1.5) +
+  geom_line(linewidth = 1.2, show.legend = FALSE) +
+  scale_color_viridis_d() +
+  coord_cartesian(xlim = c(-6, 6), ylim = c(-10, 10)) +
+  scale_x_continuous(breaks = seq(-6, 6, 2)) +
+  labs(x = "x", y = "f(x)",
+       title = "Maclaurin approximation of sin(x) — {closest_state} terms") +
+  transition_states(order, transition_length = 1, state_length = 2) +
+  shadow_mark(alpha = 0.25, linewidth = 0.6) +
+  enter_fade()
+
+animate(anim, nframes = 60, fps = 10)
+
+```
+

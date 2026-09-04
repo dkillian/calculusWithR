@@ -1,0 +1,73 @@
+---
+title: "COURSE: Master Calculus 1 — Derivatives and Applications (R)"
+subtitle: "SECTION: Functions | LECTURE: CodeChallenge: Piecewise Functions"
+author: "Translated from Mike X Cohen, sincxpress.com"
+format: html
+---
+
+```{r}
+#| message: false
+library(ggplot2)
+library(dplyr)
+```
+
+# Exercise 1: Piecewise function in R
+
+```{r}
+xx <- seq(-3, 5, length.out = 100)
+
+# Boolean masking: multiply each piece by TRUE/FALSE (1/0)
+piece1 <-  0          * (xx < 0)
+piece2 <- -2*xx       * (xx >= 0 & xx < 3)
+piece3 <-  xx^3 / 10  * (xx >= 3)
+
+y <- piece1 + piece2 + piece3
+
+ggplot(data.frame(x = xx, y = y), aes(x, y)) +
+  geom_line(linewidth = 1.5) +
+  labs(x = "x", y = "y = f(x)", title = "A piecewise function")
+```
+
+# Exercise 2: Draw separate lines for each piece
+
+```{r}
+df <- data.frame(x = xx, y = y) |>
+  mutate(piece = case_when(
+    xx < 0            ~ "0  (x < 0)",
+    xx >= 0 & xx < 3  ~ "-2x  (0 \u2264 x < 3)",
+    xx >= 3           ~ "x\u00b3/10  (x \u2265 3)"
+  ))
+
+ggplot(df, aes(x, y, color = piece)) +
+  geom_line(linewidth = 1.5) +
+  labs(x = "x", y = "y = f(x)",
+       title = "Piecewise function — pieces coloured separately",
+       color = "Piece")
+```
+
+# Exercise 3: Piecewise function using `case_when()` (the SymPy.Piecewise equivalent)
+
+In Python, `sympy.Piecewise()` defines a function with explicit conditions.
+`dplyr::case_when()` is the idiomatic R equivalent.
+
+```{r}
+xx <- seq(-3, 5, length.out = 500)
+
+fx <- case_when(
+  xx < 0            ~  0,
+  xx >= 0 & xx < 3  ~ -2 * xx,
+  xx >= 3           ~  xx^3 / 10
+)
+
+ggplot(data.frame(x = xx, y = fx), aes(x, y)) +
+  geom_line(linewidth = 1.5) +
+  labs(x = "x", y = "y = f(x)",
+       title = "Piecewise function via case_when()")
+```
+
+```{r}
+# Evaluate the piecewise function at a specific point, e.g. x = 1.5
+x0  <- 1.5
+fx0 <- case_when(x0 < 0 ~ 0, x0 >= 0 & x0 < 3 ~ -2*x0, x0 >= 3 ~ x0^3/10)
+cat("f(1.5) =", fx0, "\n")
+```

@@ -1,0 +1,116 @@
+---
+title: "COURSE: Master Calculus 1 — Derivatives and Applications (R)"
+subtitle: "SECTION: Functions | LECTURE: CodeChallenge: Composite and Inverse Functions"
+author: "Translated from Mike X Cohen, sincxpress.com"
+format: html
+---
+
+```{r}
+#| message: false
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+```
+
+# Exercise 1a: Composite functions in R
+
+```{r}
+fx <- function(x) 2*x^2 - 4
+gx <- function(x) 7*abs(x) + 3
+
+xx <- seq(-5, 5, length.out = 200)
+
+data.frame(
+  x        = xx,
+  `f(x)`   = fx(xx),
+  `g(x)`   = gx(xx),
+  `f(g(x))` = fx(gx(xx)),
+  `g(f(x))` = gx(fx(xx)),
+  check.names = FALSE
+) |>
+  pivot_longer(-x, names_to = "fun", values_to = "y") |>
+  ggplot(aes(x = x, y = y, color = fun)) +
+  geom_line(linewidth = 1) +
+  geom_hline(yintercept = 0, linetype = "dashed", linewidth = 0.3, color = "black") +
+  geom_vline(xintercept = 0, linetype = "dashed", linewidth = 0.3, color = "black") +
+  coord_cartesian(ylim = c(-10, 50)) +
+  labs(x = "x", y = "y = f(x)", color = NULL)
+```
+
+# Exercise 1b: Composite functions in R
+
+```{r}
+fx <- function(x) sin(x)
+gx <- function(x) log(x)       # natural log (same as np.log)
+hx <- function(x) 2*x^2 + 5
+
+xx <- seq(-100*pi, 100*pi, length.out = 1001)
+f3 <- fx(gx(hx(xx)))
+
+ggplot(data.frame(x = xx, y = f3), aes(x, y)) +
+  geom_line(linewidth = 1) +
+  labs(x = "x", y = "y = f(x)", title = "f(g(h(x)))")
+```
+
+# Exercise 2: Inverse function in R
+
+```{r}
+# f(x) = log(2x), g(x) = exp(x)/2  — f and g are inverses of each other
+fx <- function(x) log(2*x)
+gx <- function(x) exp(x)/2
+
+xx <- seq(0.01, 5, length.out = 50)
+
+data.frame(
+  x         = xx,
+  `f(x)`    = fx(xx),
+  `g(x)`    = gx(xx),
+  `f(g(x))` = fx(gx(xx)),
+  `g(f(x))` = gx(fx(xx)),
+  check.names = FALSE
+) |>
+  pivot_longer(-x, names_to = "fun", values_to = "y") |>
+  ggplot(aes(x = x, y = y, color = fun)) +
+  geom_line(linewidth = 1) +
+  coord_cartesian(ylim = c(-5, 10)) +
+  labs(x = "x", y = "y = f(x)", color = NULL)
+```
+
+# Exercise 3: Composite functions — building and plotting numerically
+
+In Python, SymPy builds and renders a symbolic expression. In R, we define
+functions and evaluate them directly — the composition is the same idea.
+
+```{r}
+# Build f(g(h(x))) = sin(log(2x^2 + 5)) as nested R functions
+fx <- function(x) sin(x)
+gx <- function(x) log(x)
+hx <- function(x) 2*x^2 + 5
+
+xx <- seq(-100, 100, length.out = 500)
+
+ggplot(data.frame(x = xx, y = fx(gx(hx(xx)))), aes(x, y)) +
+  geom_line(linewidth = 1) +
+  labs(x = "x", y = "f(g(h(x)))",
+       title = expression(y == sin(log(2*x^2 + 5))))
+```
+
+# Exercise 4: Inverting functions in R
+
+```{r}
+# f(x) = 2x + 3 → inverse is f_inv(y) = (y - 3) / 2
+fun    <- function(x) 2*x + 3
+invfun <- function(y) (y - 3) / 2
+
+# Composing f with its inverse should recover the original value
+cat("f(f_inv(4)) =", fun(invfun(4)), "\n")
+cat("f_inv(f(4)) =", invfun(fun(4)), "\n")
+```
+
+```{r}
+# For functions without a closed-form inverse, use uniroot()
+# Example: find x such that fun(x) = 4 numerically
+target <- 4
+result <- uniroot(function(x) fun(x) - target, interval = c(-10, 10))
+cat("Numerical inverse: x such that f(x) = 4 is", round(result$root, 6), "\n")
+```
