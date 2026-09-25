@@ -1,4 +1,4 @@
-# C alculus with R
+# Calculus with R
 
 An R translation of Mike X Cohen's Calculus with Python course
 
