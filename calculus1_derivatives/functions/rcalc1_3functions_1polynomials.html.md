@@ -11,8 +11,8 @@ format:
         code-fold: false
         code-tools: true
         page-layout: full
-fig-width: 3
 fig-height: 5
+fig-width: 7
 execute:
     keep-md: true
     warning: false
@@ -70,7 +70,7 @@ grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 ```
 
 ::: {.cell-output-display}
-![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-1-1.png){width=288}
+![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-1-1.png){width=672}
 :::
 :::
 
@@ -119,7 +119,7 @@ grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 ```
 
 ::: {.cell-output-display}
-![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-2-1.png){width=288}
+![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-2-1.png){width=672}
 :::
 :::
 
@@ -186,7 +186,7 @@ grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 ```
 
 ::: {.cell-output-display}
-![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-3-1.png){width=288}
+![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-3-1.png){width=672}
 :::
 :::
 
@@ -236,7 +236,7 @@ grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 ```
 
 ::: {.cell-output-display}
-![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-4-1.png){width=288}
+![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-4-1.png){width=672}
 :::
 :::
 
@@ -284,7 +284,7 @@ grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 ```
 
 ::: {.cell-output-display}
-![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-5-1.png){width=288}
+![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-5-1.png){width=672}
 :::
 :::
 
@@ -334,7 +334,7 @@ grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 ```
 
 ::: {.cell-output-display}
-![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-6-1.png){width=288}
+![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-6-1.png){width=672}
 :::
 :::
 
@@ -384,7 +384,7 @@ grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 ```
 
 ::: {.cell-output-display}
-![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-7-1.png){width=288}
+![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-7-1.png){width=672}
 :::
 :::
 
@@ -420,7 +420,7 @@ grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 ```
 
 ::: {.cell-output-display}
-![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-8-1.png){width=288}
+![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-8-1.png){width=672}
 :::
 :::
 
@@ -470,7 +470,7 @@ grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 ```
 
 ::: {.cell-output-display}
-![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-9-1.png){width=288}
+![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-9-1.png){width=672}
 :::
 :::
 
@@ -520,7 +520,7 @@ grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 ```
 
 ::: {.cell-output-display}
-![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-10-1.png){width=288}
+![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-10-1.png){width=672}
 :::
 :::
 
@@ -570,7 +570,7 @@ grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 ```
 
 ::: {.cell-output-display}
-![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-11-1.png){width=288}
+![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-11-1.png){width=672}
 :::
 :::
 
@@ -620,7 +620,7 @@ grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 ```
 
 ::: {.cell-output-display}
-![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-12-1.png){width=288}
+![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-12-1.png){width=672}
 :::
 :::
 
@@ -670,7 +670,7 @@ grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 ```
 
 ::: {.cell-output-display}
-![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-13-1.png){width=288}
+![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-13-1.png){width=672}
 :::
 :::
 
@@ -727,7 +727,7 @@ ggplot(seriesL, aes(x, y)) +
 ```
 
 ::: {.cell-output-display}
-![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-14-1.png){width=288}
+![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-14-1.png){width=672}
 :::
 :::
 
@@ -760,7 +760,7 @@ ggplot(seriesL, aes(x, y, color = label)) +
 ```
 
 ::: {.cell-output-display}
-![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-15-1.png){width=288}
+![](rcalc1_3functions_1polynomials_files/figure-html/unnamed-chunk-15-1.png){width=672}
 :::
 :::
 
