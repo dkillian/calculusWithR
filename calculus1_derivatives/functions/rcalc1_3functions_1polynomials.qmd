@@ -11,8 +11,8 @@ format:
         code-fold: false
         code-tools: true
         page-layout: full
-fig-width: 3
-fig-height: 5
+fig-height: 3
+fig-width: 5
 execute:
     keep-md: true
     warning: false
