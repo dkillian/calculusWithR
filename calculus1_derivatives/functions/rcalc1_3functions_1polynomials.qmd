@@ -1,8 +1,7 @@
 ---
 title: "Calculus in R: Derivatives and Applications"
 subtitle: "Exercise 2: Polynomials"
-author: "Dan Killian with Claude Sonnet 4.6"
-abstract: "An R translation of Mike X Cohen, Calculus in Python"
+author: "Dan Killian with Posit AI<br>an R translation of Mike X Cohen, Calculus in Python"
 date: today
 toc: true
 toc-depth: 3
@@ -127,7 +126,7 @@ Let's start with $n=1$
 
 ### n=1
 
-``` {r}
+```{r}
 
 order <- 10
 x <- seq(-2*pi, 2*pi, length.out = 40)
@@ -174,6 +173,7 @@ p <- ggplot(out, aes(x,y)) +
 grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 
 ```
+
 ### n=2
 
 ```{r}
@@ -214,6 +214,7 @@ p <- ggplot(out, aes(x,y)) +
 
 grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 ```
+
 ### n=3
 
 ```{r}
@@ -253,6 +254,7 @@ p <- ggplot(out, aes(x,y)) +
 grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 
 ```
+
 ### n=4
 
 ```{r}
@@ -294,6 +296,7 @@ p <- ggplot(out, aes(x,y)) +
 grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 
 ```
+
 ### n=5
 
 ```{r}
@@ -335,7 +338,8 @@ p <- ggplot(out, aes(x,y)) +
 grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 
 ```
-At n = 5, the points along the x axis start to describe the sine wave. Zoom in to see. 
+
+At n = 5, the points along the x axis start to describe the sine wave. Zoom in to see.
 
 ```{r}
 
@@ -406,6 +410,7 @@ p <- ggplot(out, aes(x,y)) +
 grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 
 ```
+
 ### n=7
 
 ```{r}
@@ -448,6 +453,7 @@ p <- ggplot(out, aes(x,y)) +
 grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 
 ```
+
 ### n=8
 
 ```{r}
@@ -490,6 +496,7 @@ p <- ggplot(out, aes(x,y)) +
 grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 
 ```
+
 ### n=9
 
 ```{r}
@@ -532,6 +539,7 @@ p <- ggplot(out, aes(x,y)) +
 grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 
 ```
+
 ### n=10
 
 ```{r}
@@ -574,6 +582,7 @@ p <- ggplot(out, aes(x,y)) +
 grid.arrange(p, tbl_grob, ncol = 2, widths = c(3, 1))
 
 ```
+
 ### all terms together
 
 ```{r}
@@ -672,4 +681,3 @@ anim <- ggplot(seriesL, aes(x, y, color = label, group = label)) +
 animate(anim, nframes = 60, fps = 10)
 
 ```
-
