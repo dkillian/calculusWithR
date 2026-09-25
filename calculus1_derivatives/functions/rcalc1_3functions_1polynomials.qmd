@@ -1,6 +1,6 @@
 ---
 title: "Calculus in R: Derivatives and Applications"
-subtitle: "Exercise 2: Polynomials"
+subtitle: "Unit 3: Functions<br>Script 1: Polynomials"
 author: "Dan Killian with Posit AI<br>an R translation of Mike X Cohen, Calculus in Python"
 date: today
 toc: true
@@ -11,7 +11,7 @@ format:
         code-fold: false
         code-tools: true
         page-layout: full
-fig-width: 8
+fig-width: 3
 fig-height: 5
 execute:
     keep-md: true

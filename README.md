@@ -6,7 +6,7 @@ See https://github.com/mikexcohen/calculusWithPython for the original repo
 
 ## Functions
 
-[Polynomials](https://dkillian.github.io/rcalc1_3functions_1polynomials.html)
+[Polynomials](https://dkillian.github.io/calculus1_derivatives/functions/rcalc1_3functions_1polynomials.html)
 
 ## Limits
 

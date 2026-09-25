@@ -1,14 +1,30 @@
 ---
-title: "COURSE: Master Calculus 1 — Derivatives and Applications (R)"
-subtitle: "SECTION: Functions | LECTURE: CodeChallenge: Exp and Log"
-author: "Translated from Mike X Cohen, sincxpress.com"
-format: html
+title: "Calculus in R: Derivatives and Applications"
+subtitle: "Unit 3: Functions<br>Script 2: Exponential and Logarithmic Functions"
+author: "Dan Killian with Posit AI<br>an R translation of Mike X Cohen, Calculus in Python"
+date: today
+toc: true
+toc-depth: 3
+number-sections: false
+format:
+    html:
+        code-fold: false
+        code-tools: true
+        page-layout: full
+fig-width: 3
+fig-height: 5
+execute:
+    keep-md: true
+    warning: false
+    message: false
+editor: visual
+reference-location: margin
 ---
 
-```{r}
-#| message: false
-library(ggplot2)
-library(tidyr)
+```{r global_options, include=F, warning=F, message=F, echo=F, error=F}
+library(here)
+library(knitr)
+source("../../Calculus with R prep.r")
 ```
 
 # Exercise 1: Estimate *e*
