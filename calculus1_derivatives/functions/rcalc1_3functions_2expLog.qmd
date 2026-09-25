@@ -29,15 +29,54 @@ source("../../Calculus with R prep.r")
 
 # Exercise 1: Estimate *e*
 
+Where does *e* come from?
+
+There are several ways to express / define *e*. Here's the way to express it in terms of limits. 
+
+$$e=\lim_{n\to\infty}\left(1+\frac{1}{n}\right)^n$$
+
+
 ```{r}
 n_vals <- c(1, 2, 5, 10)
+n <- 1:90
 
-for (n in n_vals) {
-  e_est <- (1 + 1/n)^n
-  cat(sprintf("n: %2.0f,  est.e: %6.5f,  diff to e: %9.7f\n",
-              n, e_est, exp(1) - e_est))
+exp_est <- tibble(n,
+                  e_est=NA, 
+                  e_diff=NA)
+
+for (i in n) {
+  exp_est$e_est[i] <- (1 + 1/n[i])^n[i]
+  exp_est$e_diff[i] = exp(1) - e_est[i]
 }
 ```
+
+:::{.columns}
+
+:::{.column width="33%"}
+```{r}
+exp_est %>%
+    head(30) %>%
+    flextable()
+```
+:::
+
+::: {.column width="33%"}
+```{r}
+exp_est %>%
+    .[31:60,] %>%
+    flextable()
+```
+:::
+
+::: {.column width="33%"}
+```{r}
+exp_est %>%
+    tail(30) %>%
+    flextable()
+```
+:::
+
+:::
 
 # Exercise 2: Visualize *e*'s convergence
 
@@ -84,10 +123,21 @@ beta <- seq(0.01, 2, length.out = 200)   # avoid log(0)
 y    <- exp(beta) - log(beta) - exp(1)
 
 ggplot(data.frame(beta = beta, y = y), aes(beta, y)) +
-  geom_line(linewidth = 1) +
+    geom_hline(yintercept = 0,
+               size=1,
+               color="grey60",
+               alpha=.6) +
+    geom_vline(xintercept = 0,
+               size=1,
+               color="grey60",
+               alpha=.6) +
+  geom_line(linewidth = 1, 
+            color="darkgoldenrod2") +
   labs(x = expression(beta),
        y = expression(f(beta)),
-       title = expression(f(beta) == e^beta - log(beta) - e))
+       title = expression(f(beta) == e^beta - log(beta) - e)) +
+    theme(axis.title.y=element_text(angle=0,
+                                    vjust=.6))
 ```
 
 # Exercise 5: Exp and log as mutual inverses
@@ -104,7 +154,18 @@ df <- rbind(
 )
 
 ggplot(df, aes(x = x, y = y, color = fun, shape = fun)) +
-  geom_point(size = 1.5) +
-  coord_fixed(xlim = c(-4, 4), ylim = c(-4, 4)) +
-  labs(x = "x", y = "y", color = NULL, shape = NULL)
+    geom_hline(yintercept = 0,
+               size=1,
+               color="grey60",
+               alpha=.6) +
+    geom_vline(xintercept = 0,
+               size=1,
+               color="grey60",
+               alpha=.6) +
+    geom_line(size=.8) +
+    geom_point(size = 1.5) +
+    coord_fixed(xlim = c(-4, 4), ylim = c(-4, 4)) +
+    labs(x = "x", y = "y", color = NULL, shape = NULL) +
+    theme(axis.title.y=element_text(angle=0,
+                                    vjust=.5))
 ```
