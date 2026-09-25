@@ -8,6 +8,8 @@ See https://github.com/mikexcohen/calculusWithPython for the original repo
 
 [Polynomials](https://dkillian.github.io/calculus1_derivatives/functions/rcalc1_3functions_1polynomials.html)
 
+[Exponential and Logarithmic](https://dkillian.github.io/calculus1_derivatives/functions/rcalc1_3functions_2expLog.html)
+
 ## Limits
 
 
