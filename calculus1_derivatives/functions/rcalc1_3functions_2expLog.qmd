@@ -11,8 +11,8 @@ format:
         code-fold: false
         code-tools: true
         page-layout: full
-fig-width: 3
-fig-height: 5
+fig-height: 3
+fig-width: 5
 execute:
     keep-md: true
     warning: false
@@ -37,7 +37,6 @@ $$e=\lim_{n\to\infty}\left(1+\frac{1}{n}\right)^n$$
 
 
 ```{r}
-n_vals <- c(1, 2, 5, 10)
 n <- 1:90
 
 exp_est <- tibble(n,
@@ -46,7 +45,7 @@ exp_est <- tibble(n,
 
 for (i in n) {
   exp_est$e_est[i] <- (1 + 1/n[i])^n[i]
-  exp_est$e_diff[i] = exp(1) - e_est[i]
+  exp_est$e_diff[i] = exp(1) - exp_est$e_est[i]
 }
 ```
 
@@ -78,39 +77,95 @@ exp_est %>%
 
 :::
 
+The value of *n* must get into the hundreds before the estimate will converge to 2.72
+
+
 # Exercise 2: Visualize *e*'s convergence
 
-```{r}
-n <- 1:1000
-e_diffs <- exp(1) - (1 + 1/n)^n
+Plot the convergence of the estimate to *e*
 
-ggplot(data.frame(n = n, diff = e_diffs), aes(n, diff)) +
-  geom_line(linewidth = 1) +
-  labs(x = "n", y = "Difference to exp(1)",
-       title = "Convergence of (1 + 1/n)^n to e")
+```{r}
+ggplot(exp_est, aes(n, e_diff)) +
+    geom_hline(yintercept=.0183,
+               color="grey60",
+               alpha=.4,
+               size=1) +
+    geom_line(color="indianred",
+              size=1, 
+              alpha=.5) +
+    scale_x_continuous(breaks=seq(0,90, 10)) +
+    scale_y_continuous(breaks=seq(0,.8,.1)) +
+    labs(x = "n", 
+         y = "Error",
+         title = "Convergence of (1 + 1/n)^n to e") +
+    theme(axis.title.y=element_text(angle=0, 
+                                    vjust=.5))
 ```
+At what point does the sequence converge? Let's say reaching 2.7 is close enough to be considered as reaching 2.718
+
+```{r}
+ggplot(filter(exp_est, n>39), aes(n, e_diff)) +
+    geom_hline(yintercept=.0183,
+               color="grey60",
+               alpha=.4,
+               size=1) +
+    geom_line(color="indianred",
+              size=1, 
+              alpha=.5) +
+    coord_cartesian(ylim=c(0,.035), xlim=c(40,90)) +
+    scale_x_continuous(breaks=seq(40,90, 5)) +
+    scale_y_continuous(breaks=seq(0,.05,.005)) +
+    labs(x = "n", 
+         y = "Error",
+         title = "Convergence of (1 + 1/n)^n to e") +
+    theme(axis.title.y=element_text(angle=0, 
+                                    vjust=.5))
+```
+The estimate reaches 2.7 at about $n=73$. The value of $n$ needs to be 164 to reach 2.71, and 4,822 to reach 2.718
 
 # Exercise 3: Exploring *e* in R
 
-```{r}
-x_domain <- c(-2, 2)
-x <- seq(x_domain[1], x_domain[2], length.out = 41)
+Plot a family of exponential functions
 
-data.frame(
-  x   = x,
-  `e^x`          = exp(x),
-  `e^(x^2)`      = exp(x^2),
-  `e^((-x)^2)`   = exp((-x)^2),
-  `exp(-(x^2))`  = exp(-(x^2)),
-  `exp(x)^2`     = exp(x)^2,
-  check.names = FALSE
-) |>
-  pivot_longer(-x, names_to = "fun", values_to = "y") |>
-  ggplot(aes(x = x, y = y, color = fun)) +
-  geom_line(linewidth = 1) +
-  coord_cartesian(xlim = x_domain, ylim = c(-1, 10)) +
-  labs(x = "x", y = "y = f(x)", color = NULL) +
-  theme(legend.position = "right")
+```{r}
+x <- seq(-2,2, length.out = 20)
+e_x <- exp(x)
+e_x2 <- exp(x^2)
+e_x22 <- exp((-x)^2)
+e_negx2 <- exp(-(x^2))
+ex2 <- exp(x)^2
+
+func_key <- tibble(func_code = 1:5,
+                   func=c("e_x","e_x2","e_x22","e_negx2","ex2"),
+                   `function` = c("$e^x$",
+                                  "$e^{x^2}$",
+                                  "$e(-x)^2$",
+                                  "$e^{-(x^2)}$",
+                                  "$(e^x)^2$"))
+
+
+#func_key
+
+d <- tibble(x, e_x, e_x2, e_x22, e_negx2, ex2)
+
+dL <- d %>%
+    pivot_longer(-x,
+                 names_to="func",
+                 values_to="y") %>%
+    left_join(func_key, by = "func") 
+
+dL %>%
+    head() %>%
+    kable(escape=T)
+```
+
+```{r}
+ggplot(dL, aes(x, y, color = func)) +
+    geom_line(size=1,
+              alpha=.6) +
+    coord_cartesian(xlim = c(-2,2), ylim = c(0,10)) +
+    scale_y_continuous(breaks=seq(0,10,2))
+
 ```
 
 # Exercise 4: Exploring *e* in R (symbolic-style expression)
